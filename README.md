@@ -10,7 +10,7 @@ npm install hexo-selenium-site-parser
 
 * create file test.js in hexo blog folder because it create posts in source/_post and store images in source/images folders put next code to see the result
 
-{code:js}
+```javascript
 var Parser = require('hexo-selenium-site-parser'); | var Parser = require('./node_modules/hexo-selenium-site-parser/hexo-selenium-site-parser.js');
 var parser = new Parser();
 
@@ -47,4 +47,4 @@ sites_config[2]['num_of_movies_to_parse'] = 6;
 sites_config[2]['allow_owerite'] = 0; //  0 = not rewrite /important not remove
 
 parser.parse(sites_config);
-{code}
+```
