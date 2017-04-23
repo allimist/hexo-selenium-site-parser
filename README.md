@@ -8,6 +8,8 @@ npm install hexo-selenium-site-parser
 
 ## use example:
 
+this file should located in hexo blog folder because it create posts in source/_post and source/images folders
+
 var Parser = require('hexo-selenium-site-parser'); | var Parser = require('./node_modules/hexo-selenium-site-parser/hexo-selenium-site-parser.js');
 var parser = new Parser();
 
