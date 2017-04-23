@@ -19,5 +19,13 @@
   "bugs": {
     "url": "https://github.com/allimist/hexo-selenium-site-parser/issues"
   },
-  "homepage": "https://github.com/allimist/hexo-selenium-site-parser#readme"
+  "homepage": "https://github.com/allimist/hexo-selenium-site-parser#readme",
+  "dependencies": {
+    "async-foreach": "",
+    "request": ""
+    
+  }
 }
+
+
+
