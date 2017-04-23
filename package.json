@@ -1,6 +1,6 @@
 {
   "name": "hexo-selenium-site-parser",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Javascript class for parse web sites and create potst with title, content and image for hexo.io for parsing use selenium",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,10 @@
   "homepage": "https://github.com/allimist/hexo-selenium-site-parser#readme",
   "dependencies": {
     "async-foreach": "",
-    "request": ""
-    
+    "request": "",
+    "translitit-cyrillic-russian-to-latin": "",
+    "selenium-webdriver": "",
+    "chromedriver": 
   }
 }
 

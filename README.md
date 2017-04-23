@@ -1,14 +1,14 @@
 README.md
 
 
-hexo-selenium-site-parser
+# hexo-selenium-site-parser
 
-first:
+## first:
 npm install hexo-selenium-site-parser
 
-use example:
+## use example:
 
-var Parser = require('hexo-selenium-site-parser');
+var Parser = require('hexo-selenium-site-parser'); | var Parser = require('./node_modules/hexo-selenium-site-parser/hexo-selenium-site-parser.js');
 var parser = new Parser();
 
 var sites_config = [];
