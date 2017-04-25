@@ -1,6 +1,6 @@
 {
   "name": "hexo-selenium-site-parser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Javascript class for parse web sites and create potst with title, content and image for hexo.io for parsing use selenium",
   "main": "index.js",
   "scripts": {

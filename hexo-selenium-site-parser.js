@@ -37,9 +37,11 @@ Parser.prototype.parse = function(sites_config) {
         var records_content_xpath = site_config['records_content_xpath'];
         var records_img_xpath = site_config['records_img_xpath'];
 
+        var records_meta1_xpath = site_config['records_meta1_xpath'];
+
         var offset_of_movies_to_parse = site_config['offset_of_movies_to_parse'];
-    	var num_of_movies_to_parse = site_config['num_of_movies_to_parse'];
-    	var allow_owerite = site_config['allow_owerite']; //  0 = not rewrite /important not remove
+        var num_of_movies_to_parse = site_config['num_of_movies_to_parse'];
+        var allow_owerite = site_config['allow_owerite']; //  0 = not rewrite /important not remove
 
 
 
@@ -116,6 +118,18 @@ Parser.prototype.parse = function(sites_config) {
                     });
                 });
 
+                if(records_meta1_xpath!=''){
+
+                    driver.findElement(By.xpath(records_meta1_xpath)).then(function(checkElem) {
+                        checkElem.getText().then(function(body_text){
+                            console.log('meta1',body_text);
+                            data[index]['meta1'] = body_text;
+                            callback(data[index],index);
+                        });
+                    });
+
+                }
+
         };
 
 
@@ -127,7 +141,7 @@ Parser.prototype.parse = function(sites_config) {
                //console.log('-no desc');
             } else if (typeof record['img'] == 'undefined' || record['img'] == null){
                //console.log('-no img');
-            // } else if (typeof record['iframe'] == 'undefined' || record['iframe'] == null){
+            } else if (records_meta1_xpath != '' && (typeof record['meta1'] == 'undefined' || record['meta1'] == null)){
                //console.log('-no iframe');
             } else {
                 
@@ -171,8 +185,11 @@ Parser.prototype.parse = function(sites_config) {
                         //console.log('OK: ' + filename);
                         data = data.replace(/\[\[title\]\]/g, record['title']);
                         data = data.replace('[[desc]]', record['desc']);
-                        //data = data.replace('[[iframe]]', record['iframe']);
 
+                        if(records_meta1_xpath!=''){
+                            data = data.replace(/\[\[meta1\]\]/g, record['meta1']);
+                        }
+                        
                         // var img_file_name = post_name.replace(/\W/g, '');
                         // img_file_name = img_file_name.replace(/_/g, '');
 
@@ -260,9 +277,18 @@ Parser.prototype.parse = function(sites_config) {
 
     }
 
-    parse_site(sites_config[0]);
-    parse_site(sites_config[1]);
-    parse_site(sites_config[2]);
+
+
+    forEach(sites_config, function(site_config, index, arr) {
+        //console.log("each", item, index, arr);
+        parse_site(site_config);
+                   
+
+    });
+
+    
+    // parse_site(sites_config[1]);
+    // parse_site(sites_config[2]);
     driver.quit();
     
 };
