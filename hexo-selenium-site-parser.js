@@ -73,9 +73,8 @@ Parser.prototype.parse = function(sites_config) {
 
 
             }).then(function(){
+                    console.log('links parsed',links.length);
                     callback(links);
-                    console.log('data parsed');
-
             });
 
         };
@@ -85,7 +84,7 @@ Parser.prototype.parse = function(sites_config) {
 
             //function(){}
 
-                console.log("each", index, item);
+                console.log("-", index, item);
 
                 //console.log(uniqueLinks[index]);
 
@@ -110,13 +109,22 @@ Parser.prototype.parse = function(sites_config) {
                     });
                 });
 
-                driver.findElement(By.xpath(records_img_xpath)).then(function(checkElem) {
+                //parse image only if exist
+                driver.wait(until.elementLocated(By.xpath(records_img_xpath)), 5000).then(function(checkElem) {
+                    //console.log('----yes');
                     checkElem.getAttribute("src").then(function(body_text){
-                        //console.log('img',body_text);
                         data[index]['img'] = body_text;
                         callback(data[index],index);
                     });
+                }).catch(function(ex) {
+                    console.log('-- no image for post',index);
+                    data[index]['img'] = '';
+                    callback(data[index],index);
+
                 });
+
+                //driver.wait(until.titleIs('webdriver - Google Search'), 1000);
+
 
                 if(records_meta1_xpath!=''){
 
@@ -154,27 +162,31 @@ Parser.prototype.parse = function(sites_config) {
                 var post_name = record['title'].replace(/\s/g, '_');
                 post_name = post_name.replace(/—/g, '_');
                 post_name = post_name.replace(/\//g, '_');
-                post_name = post_name.replace(/«/g, '');
-                post_name = post_name.replace(/»/g, '');
-                post_name = post_name.replace(/,/g, '');
-                post_name = post_name.replace(/\?/g, '');
-                post_name = post_name.replace(/\./g, '');
+                post_name = post_name.replace(/«/g, '_');
+                post_name = post_name.replace(/»/g, '_');
+                post_name = post_name.replace(/,/g, '_');
+                post_name = post_name.replace(/\?/g, '_');
+                post_name = post_name.replace(/\./g, '_');
+                post_name = post_name.replace(/\!/g, '_');
+                post_name = post_name.replace(/\(/g, '_');
+                post_name = post_name.replace(/\)/g, '_');
+                post_name = post_name.replace(/\"/g, '_');
+                post_name = post_name.replace(/\'/g, '_');
                 post_name = post_name.replace(/-/g, '_');
                 post_name = post_name.replace(/__/g, '_');
                 post_name = translit(post_name);
 
-                console.log(post_name);
+                //console.log(post_name);
 
                 //first chatck if exist and if allow owerite
                 
 
                 if (!allow_owerite && fs2.existsSync('source/_posts/'+post_name+'.md')) {
                     // Do something
-                    console.log('-'+index+' file exist - owerite disabled',post_name);
+                    console.log('- '+index+' file exist - owerite disabled',post_name);
 
 
-                } else 
-                {
+                } else {
 
                     //creta page in hexo
 
@@ -189,20 +201,14 @@ Parser.prototype.parse = function(sites_config) {
                         if(records_meta1_xpath!=''){
                             data = data.replace(/\[\[meta1\]\]/g, record['meta1']);
                         }
-                        
-                        // var img_file_name = post_name.replace(/\W/g, '');
-                        // img_file_name = img_file_name.replace(/_/g, '');
 
-                        data = data.replace('[[img]]', '/images/'+post_name+'.jpeg');
-
-                        //console.log(post_name);
-
-                        //store image
-                        // request(record['img'], {encoding: 'binary'}, function(error, response, body) {
-                        //   fs2.writeFile('source/images/'+img_file_name+'.jpg', body, 'binary', function (err) {});
-                        // });
-
-                        request(record['img']).pipe(fs2.createWriteStream('source/images/'+post_name+'.jpeg'));
+                        //store image if exist
+                        if(record['img']!=''){
+                            data = data.replace('[[img]]', '/images/'+post_name+'.jpeg');
+                            request(record['img']).pipe(fs2.createWriteStream('source/images/'+post_name+'.jpeg'));
+                        } else{
+                            data = data.replace('[[img]]', '');
+                        }
                         
                         //store post in post folder in md lang
                         //console.log(data);
@@ -226,10 +232,9 @@ Parser.prototype.parse = function(sites_config) {
 
         function data_loop(){
 
-            console.log('data callback');
-
+            //console.log('data callback');
             //console.log(links);
-            console.log(links.length);
+            //console.log('links.length',links.length);
 
             var uniqueLinks = [];
 
@@ -238,7 +243,7 @@ Parser.prototype.parse = function(sites_config) {
             });
 
             //console.log(uniqueLinks);
-            console.log(uniqueLinks.length);
+            console.log('uniqueLinks.length',uniqueLinks.length);
 
             //function callback () { console.log('all done'); }
 
