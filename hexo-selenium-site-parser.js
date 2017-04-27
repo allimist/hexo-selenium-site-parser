@@ -12,6 +12,8 @@ Parser.prototype.parse = function(sites_config) {
     var fs = require('fs');
     var request = require('request'), fs2      = require('fs');
     var translit = require('translitit-cyrillic-russian-to-latin');
+    var mkdirp = require('mkdirp');
+
 
     var webdriver = require('selenium-webdriver');
     var By = webdriver.By;
@@ -36,6 +38,7 @@ Parser.prototype.parse = function(sites_config) {
         var records_title_xpath = site_config['records_title_xpath'];
         var records_content_xpath = site_config['records_content_xpath'];
         var records_img_xpath = site_config['records_img_xpath'];
+        var records_imgs_xpath = site_config['records_imgs_xpath'];
 
         var records_meta1_xpath = site_config['records_meta1_xpath'];
 
@@ -55,21 +58,21 @@ Parser.prototype.parse = function(sites_config) {
             driver.get(site_url); 
             driver.findElements(By.xpath(records_links_xpath)).then(function(newsElems) {
             
-            newsElems.forEach(function(newsElem) {
+                newsElems.forEach(function(newsElem) {
 
-                // console.log(i);
-                
-                // newsElem.getText().then(function(body_text){
-                //  console.log(body_text);
-                // });
-
-                newsElem.getAttribute("href").then(function(body_text){
-                    //console.log(body_text);
-                    links.push(body_text);
+                    // console.log(i);
                     
-                });
+                    // newsElem.getText().then(function(body_text){
+                    //  console.log(body_text);
+                    // });
 
-            });
+                    newsElem.getAttribute("href").then(function(body_text){
+                        //console.log(body_text);
+                        links.push(body_text);
+                        
+                    });
+
+                });
 
 
             }).then(function(){
@@ -109,19 +112,23 @@ Parser.prototype.parse = function(sites_config) {
                     });
                 });
 
-                //parse image only if exist
-                driver.wait(until.elementLocated(By.xpath(records_img_xpath)), 5000).then(function(checkElem) {
-                    //console.log('----yes');
-                    checkElem.getAttribute("src").then(function(body_text){
-                        data[index]['img'] = body_text;
-                        callback(data[index],index);
-                    });
-                }).catch(function(ex) {
-                    console.log('-- no image for post',index);
-                    data[index]['img'] = '';
-                    callback(data[index],index);
+                if(records_img_xpath!=''){
 
-                });
+                    //parse image only if exist
+                    driver.wait(until.elementLocated(By.xpath(records_img_xpath)), 5000).then(function(checkElem) {
+                        //console.log('----yes');
+                        checkElem.getAttribute("src").then(function(body_text){
+                            data[index]['img'] = body_text;
+                            callback(data[index],index);
+                        });
+                    }).catch(function(ex) {
+                        console.log('-- no image for post',index);
+                        data[index]['img'] = '';
+                        callback(data[index],index);
+
+                    });
+
+                }
 
                 //driver.wait(until.titleIs('webdriver - Google Search'), 1000);
 
@@ -138,6 +145,32 @@ Parser.prototype.parse = function(sites_config) {
 
                 }
 
+                if(records_imgs_xpath!=''){
+
+                    var images = [];
+
+                    driver.findElements(By.xpath(records_imgs_xpath)).then(function(checkElems) {
+                        
+                        
+
+                        checkElems.forEach(function(checkElem) {
+
+                            checkElem.getAttribute("src").then(function(body_text){
+                                images.push(body_text);
+                            });
+
+                        });
+
+
+                    }).then(function(){
+
+                        data[index]['imgs'] = images;
+                        callback(data[index],index);
+
+                    });
+
+                }
+
         };
 
 
@@ -147,9 +180,11 @@ Parser.prototype.parse = function(sites_config) {
               //console.log('-no title');
             } else if (typeof record['desc'] == 'undefined' || record['desc'] == null){
                //console.log('-no desc');
-            } else if (typeof record['img'] == 'undefined' || record['img'] == null){
+            } else if (records_img_xpath != '' && (typeof record['img'] == 'undefined' || record['img'] == null)){
                //console.log('-no img');
             } else if (records_meta1_xpath != '' && (typeof record['meta1'] == 'undefined' || record['meta1'] == null)){
+               //console.log('-no iframe');
+            } else if (records_imgs_xpath != '' && (typeof record['imgs'] == 'undefined' || record['imgs'] == null)){
                //console.log('-no iframe');
             } else {
                 
@@ -172,6 +207,9 @@ Parser.prototype.parse = function(sites_config) {
                 post_name = post_name.replace(/\)/g, '_');
                 post_name = post_name.replace(/\"/g, '_');
                 post_name = post_name.replace(/\'/g, '_');
+                post_name = post_name.replace(/\]/g, '_');
+                post_name = post_name.replace(/\[/g, '_');
+                post_name = post_name.replace(/\|/g, '_');
                 post_name = post_name.replace(/-/g, '_');
                 post_name = post_name.replace(/__/g, '_');
                 post_name = translit(post_name);
@@ -203,12 +241,42 @@ Parser.prototype.parse = function(sites_config) {
                         }
 
                         //store image if exist
-                        if(record['img']!=''){
-                            data = data.replace('[[img]]', '/images/'+post_name+'.jpeg');
+                        if(records_img_xpath != '' && record['img']!=''){
+                            data = data.replace('[[img]]', '!['+record['title']+'](/images/'+post_name+'.jpeg "'+record['title']+'")');
+
                             request(record['img']).pipe(fs2.createWriteStream('source/images/'+post_name+'.jpeg'));
                         } else{
                             data = data.replace('[[img]]', '');
                         }
+
+
+                        //store images ???
+                        if(records_imgs_xpath != '' && record['imgs'].length>0){
+
+                                if (!fs.existsSync('source/images/'+post_name)){
+                                    fs.mkdirSync('source/images/'+post_name);
+                                }
+
+
+                                imgs = '';
+                                img_index=0;
+                                record['imgs'].forEach(function(checkElem) {
+
+                                    imgs += '!['+record['title']+'](/images/'+post_name+'/'+img_index+'.jpeg "'+record['title']+'")';
+                                    console.log('soring image',img_index);
+                                    request(checkElem).pipe(fs2.createWriteStream('source/images/'+post_name+'/'+img_index+'.jpeg'));
+                                    img_index++;
+
+                                });
+
+                                data = data.replace('[[imgs]]', imgs);   
+                            
+                        } else{
+                            data = data.replace('[[imgs]]', '');
+                        }
+
+
+                        //console.log('images in the page:',record['imgs']);
                         
                         //store post in post folder in md lang
                         //console.log(data);
