@@ -44,6 +44,8 @@ Parser.prototype.parse = function(sites_config) {
 
         var offset_of_movies_to_parse = site_config['offset_of_movies_to_parse'];
         var num_of_movies_to_parse = site_config['num_of_movies_to_parse'];
+        var records_imgs_to_parse = site_config['records_imgs_to_parse'];
+        var link_to_source_page = site_config['link_to_source_page'];
         var allow_owerite = site_config['allow_owerite']; //  0 = not rewrite /important not remove
 
 
@@ -262,10 +264,16 @@ Parser.prototype.parse = function(sites_config) {
                                 img_index=0;
                                 record['imgs'].forEach(function(checkElem) {
 
+                                    if(img_index>records_imgs_to_parse){
+                                        return;
+                                    }
+
                                     imgs += '!['+record['title']+'](/images/'+post_name+'/'+img_index+'.jpeg "'+record['title']+'")';
                                     console.log('soring image',img_index);
                                     request(checkElem).pipe(fs2.createWriteStream('source/images/'+post_name+'/'+img_index+'.jpeg'));
                                     img_index++;
+
+
 
                                 });
 
@@ -273,6 +281,10 @@ Parser.prototype.parse = function(sites_config) {
                             
                         } else{
                             data = data.replace('[[imgs]]', '');
+                        }
+
+                        if(link_to_source_page){
+                            data = data.replace(/\[\[link\]\]/g, record['link']);
                         }
 
 

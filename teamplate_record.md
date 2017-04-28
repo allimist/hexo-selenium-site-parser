@@ -7,3 +7,5 @@ title: [[title]]
 [[desc]]
 
 [[imgs]]
+
+[link:]([[link]] "[[title]]")

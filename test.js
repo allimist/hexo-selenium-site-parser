@@ -1,4 +1,4 @@
-var Parser = require('./node_modules/hexo-selenium-site-parser/hexo-selenium-site-parser.js');
+var Parser = require('hexo-selenium-site-parser');
 var parser = new Parser();
 
 var sites_config = [];
@@ -26,6 +26,7 @@ sites_config[1]['records_imgs_xpath'] = '//div[@class="entry-content"]//p//img';
 sites_config[1]['records_meta1_xpath'] = '';//"//div[@class='tile-primary']//textarea";
 sites_config[1]['offset_of_movies_to_parse'] = 0;
 sites_config[1]['num_of_movies_to_parse'] = 10;
+sites_config[1]['records_imgs_to_parse'] = 4; // num on images to parse per parsed post
 sites_config[1]['allow_owerite'] = 1; //  0 = not rewrite /important not remove
 
 

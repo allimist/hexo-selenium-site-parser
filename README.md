@@ -7,7 +7,7 @@ README.md
 npm install hexo-selenium-site-parser
 
 ## second:
-create teampleate file called: 'teamplate_record.md'
+create teampleate file called: 'teamplate_record.md' you can copy in from module directory
 ```
 ---
 title: [[title]]
@@ -19,14 +19,18 @@ title: [[title]]
 
 [[imgs]]
 
+[link:]([[link]] "[[title]]")
+
 ```
 
 ## use example:
 
 * create file test.js in hexo blog folder because it create posts in source/_post and store images in source/images folders put next code to see the result
+* check everyone can write permision to '/source' folder
+* you can copy test.js from module directory
 
 ```javascript
-var Parser = require('hexo-selenium-site-parser'); | var Parser = require('./node_modules/hexo-selenium-site-parser/hexo-selenium-site-parser.js');
+var Parser = require('hexo-selenium-site-parser');
 var parser = new Parser();
 
 var sites_config = [];
@@ -41,6 +45,7 @@ sites_config[0]['records_imgs_xpath'] = '//div[@class="entry-content"]//p//img';
 sites_config[0]['records_meta1_xpath'] = '';//"//div[@class='tile-primary']//textarea";
 sites_config[0]['offset_of_movies_to_parse'] = 0;
 sites_config[0]['num_of_movies_to_parse'] = 10;
+sites_config[0]['records_imgs_to_parse'] = 4; // num on images to parse per parsed post
 sites_config[0]['allow_owerite'] = 1; //  0 = not rewrite /important not remove
 
 
