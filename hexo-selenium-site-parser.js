@@ -197,6 +197,25 @@ Parser.prototype.parse = function(sites_config) {
                     
 
                 }
+                if(site_config['click']!=''){
+                    driver.wait(until.elementLocated(By.xpath(site_config['click'])), 5000).then(function(checkElem) {
+                        checkElem.click();
+                        driver.findElement(By.xpath(site_config['click_and_get'])).then(function(checkElem) {
+                            checkElem.getText().then(function(body_text){
+                                //console.log('title',body_text);
+                                data[index]['click_and_get'] = body_text;
+                                callback(data[index],index);
+                            });
+                        });
+                    }).catch(function(ex) {
+                        console.log('-- no click for post',index);
+                        data[index]['click_and_get'] = '';
+                        callback(data[index],index);
+
+                    });
+                }
+
+                
 
         };
 
@@ -216,6 +235,8 @@ Parser.prototype.parse = function(sites_config) {
             } else if (site_config['categories_xpath'] != '' && (typeof record['categories'] == 'undefined' || record['categories'] == null)){
                //console.log('-no iframe');
             } else if (site_config['tags_xpath'] != '' && (typeof record['tags'] == 'undefined' || record['tags'] == null)){
+               //console.log('-no iframe');
+            } else if (site_config['click'] != '' && (typeof record['click_and_get'] == 'undefined' || record['click_and_get'] == null)){
                //console.log('-no iframe');
             } else {
                 
@@ -249,6 +270,8 @@ Parser.prototype.parse = function(sites_config) {
                 if(site_config['records_translit_title_letters_to_english']){
                     post_name = translit(post_name);
                 }
+
+
                 
 
                 //console.log(post_name);
@@ -279,9 +302,16 @@ Parser.prototype.parse = function(sites_config) {
 
                         //store image if exist
                         if(site_config['records_img_xpath'] != '' && record['img']!=''){
-                            data = data.replace('[[img]]', '!['+record['title']+'](/images/'+post_name+'.jpeg "'+record['title']+'")');
 
-                            request(record['img']).pipe(fs2.createWriteStream('source/images/'+post_name+'.jpeg'));
+
+                            if(site_config['records_translit_title_letters_to_english']==0){
+                                img_file_name = translit(post_name);
+                            } else {
+                                img_file_name = post_name;
+                            }
+                            data = data.replace('[[img]]', '!['+record['title']+'](/images/'+img_file_name+'.jpeg "'+record['title']+'")');
+
+                            request(record['img']).pipe(fs2.createWriteStream('source/images/'+img_file_name+'.jpeg'));
                         } else{
                             data = data.replace('[[img]]', '');
                         }
@@ -350,6 +380,7 @@ Parser.prototype.parse = function(sites_config) {
                         } else{
                             data = data.replace('[[categories]]', '');
                         }
+
                         if(site_config['tags_xpath'] != '' && record['tags'].length>0){
 
                             
@@ -383,13 +414,15 @@ Parser.prototype.parse = function(sites_config) {
                             data = data.replace('[[tags]]', '');
                         }
 
-                        data = data.replace('[[iframe]]', ''); 
 
 
 
-                        
-
-
+                        //store image if exist
+                        if(site_config['click'] != '' && record['click_and_get']!=''){
+                            data = data.replace('[[click_and_get]]', record['click_and_get']);
+                        } else{
+                            data = data.replace('[[click_and_get]]', '');
+                        }
 
 
 
