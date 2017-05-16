@@ -212,6 +212,7 @@ Parser.prototype.parse = function(sites_config) {
                 post_name = post_name.replace(/\]/g, '_');
                 post_name = post_name.replace(/\[/g, '_');
                 post_name = post_name.replace(/\|/g, '_');
+                post_name = post_name.replace(/&/g, 'and');
                 post_name = post_name.replace(/-/g, '_');
                 post_name = post_name.replace(/__/g, '_');
                 post_name = translit(post_name);
