@@ -8,4 +8,6 @@ title: [[title]]
 
 [[imgs]]
 
+[[click_and_get]]
+
 [link:]([[link]] "[[title]]")
